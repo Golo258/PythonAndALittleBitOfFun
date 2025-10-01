@@ -6,9 +6,16 @@ from time import sleep
 
 class Log():
     @classmethod
-    def debug(self, message): # only for now, latter i will build better with colors
+    def debug(cls, message): # only for now, latter i will build better with colors
         print(f"[DEBUG] {message}")
 
+    @classmethod
+    def error(cls, message):
+        print(f"[ERROR] {message}")
+
+    @classmethod
+    def section_pause(cls):
+        print("#"*30)
 class GitSetup(object):
 
     def run_git_cmd(self):
@@ -49,6 +56,10 @@ class SubprocessPlayground(object):
         ])
         Log.debug(f"Result: {result.returncode}")
 
+    """
+        run with capture_output set to True will load stdout
+            and stderr if there occurs ones 
+    """
     def run_with_capture(self):
         output = subprocess.run([
             "wsl",
@@ -63,8 +74,35 @@ class SubprocessPlayground(object):
         else:
             Log.debug(f"Captured errors: {output.stderr} // There is a problem in here.")
 
+    """
+      run with check=True will raise an exception with Error 
+        returncode and std-out|err if there will be providen
+    """
+    def run_with_exception(self):
+        try:
+            subprocess.run(["wsl", "ls", "/notFound"], check=True)
+        except subprocess.CalledProcessError as subException:
+            Log.error(f"Process Error captured: ${subException}")
+            Log.error(f"Return Code: ${subException.returncode}")
+
+    """
+        Popen - starts given process and return the process object
+            communicate - waits until the process ends and return std-out|err
+            
+    """
     def simple_popen(self):
-        pass
+        process = subprocess.Popen(
+            ["ping", "google.com", "-n", "2"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        out, err = process.communicate()
+        sleep(1)
+        process.terminate() # killing bastard
+        Log.debug(f"Out: {out}")
+        Log.debug(f"Err: {err}")
+        Log.debug(f"Pid: {process.pid} and code: {process.returncode}")
 
 
 setup = GitSetup()
@@ -74,3 +112,6 @@ setup = GitSetup()
 sub_playground = SubprocessPlayground()
 sub_playground.simple_run()
 sub_playground.run_with_capture()
+sub_playground.run_with_exception()
+Log.section_pause()
+sub_playground.simple_popen()
