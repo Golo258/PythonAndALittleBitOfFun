@@ -88,7 +88,11 @@ class SubprocessPlayground(object):
     """
         Popen - starts given process and return the process object
             communicate - waits until the process ends and return std-out|err
-            
+            manually running proces
+            its not waiting until process end its return hock to the process
+        
+        subprocess.PIPE- instead of putting result to consol it
+            contects pipe, to make it by youself
     """
     def simple_popen(self):
         process = subprocess.Popen(
@@ -97,7 +101,7 @@ class SubprocessPlayground(object):
             stderr=subprocess.PIPE,
             text=True
         )
-        out, err = process.communicate()
+        out, err = process.communicate() # wait until process ends
         sleep(1)
         process.terminate() # killing bastard
         Log.debug(f"Out: {out}")
