@@ -206,6 +206,10 @@ class RegexPlayground(object):
             nawiasy logiczne wewnątrz regexa
             grupuje elementy, żeby móc zastosować ilościowe * + {}
             do danej sekwencji
+            
+            () robi ci grupe przechwytującą 
+                potem można to ogranąć w group(1) - pierwsza znaleziona grupa
+                 
         """
         def grouping_example():
             print("grouping example")
@@ -214,6 +218,61 @@ class RegexPlayground(object):
                 re.findall(r"(ab)+", "ababbacaba"),
                 re.findall(r"(ab|ca)+", "ababbacaba")
             )
+        """
+            (?:...)
+            To też grupuje, ale nie przechwytuje 
+                nie zapisuje grup jako np group(1)
+            kiedy chcesz połaczyć kilka rzeczy razem
+                ale nie chcesz żeby byly dostepne jako oddzielne grupy
+            nie mam pojecia po co to komu
+        """
+        def non_capturing_group():
+            print("non capturing group example")
+            capturing_pattern = r"(ab)+"
+            non_capturing_pattern = r"(?:ab)+"
+            text = "ab ab ab"
+            print(re.search(capturing_pattern, text).groups())
+            print(re.search(non_capturing_pattern, text).groups())
+
+        """
+            (?P<name>...)
+            = można nazwać grupe i potem po aliasie 
+                mozna sie dostac do danej grupy 
+        """
+        def named_group():
+            print("named group example")
+            match = re.search(
+                r"(?P<who>\w+) ma (?P<what>\w+)",
+                "Ala ma kota"
+            )
+            print(match.group("who") or None)  # Ala
+            print(match.group("what"))
+
+
+        """
+            (?=...)
+            sprawdzenie czy cos nastepuje po dopasowaniu
+                ale nie wchodzi do wyniku
+            Moje wytłumaczenie:
+                zamiast określenia ilościowego
+                określamy jaki warunek musi spęłnić
+                \d nie ile liczb
+                tylko że jest \d liczba (?=USD) a po niej musi być taki pattern
+                albo ogólnie
+                jakiś pattern i potem po niej wystepuje cos 
+        """
+        def lookahead_example():
+            print("Lookaheade xample")
+            print(
+                re.findall(r"\d(?=USD)",
+           "10USD 20EUR 30USD")
+            )
+            #  \d zero lub jedną cyfre
+            #  (?=PLN) - tylko jeśli dalej wystepuje PLN
+            print(re.findall(
+                r"\d?(?=PLN)",
+                "1PLN, 20PLN, 5125UDS, 5USD, 5PLN"
+            ))
 
         def escape_example():
             print("escape example")
@@ -229,6 +288,9 @@ class RegexPlayground(object):
         alternative_example()
         grouping_example()
         escape_example()
+        non_capturing_group()
+        named_group()
+        lookahead_example()
     """
         Klasy znaków:
             Wzór         Znaczenie                    Przykład
