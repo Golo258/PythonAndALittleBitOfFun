@@ -1,7 +1,6 @@
 import os
 import json
 import yaml  # pyyaml
-import xml.etree.ElementTree as ET
 
 from copy import deepcopy
 from Logger import logger
@@ -102,60 +101,33 @@ class Parsing:
                 section: dict(config[section])
                 for section in config.sections()
             }
+            logger.debug(ini_data)
             ini_data["Database"]["allowed_proxy"] = True
             with open(ini_file_path, "w") as ini_w:
                 config.write(ini_w)
 
-
-            logger.debug(ini_data)
-
-if __name__ == '__main__':
-    parsing = Parsing()
-    parsing.json_parsing("simple.json")
-    print("*" * 60)
-    parsing.yaml_parsing("simple.yaml")
-    print("*" * 60)
-    parsing.ini_parsing("simple.ini")
-    print("*" * 60)
-
-
-    # parse parsuje po nazwie pliku
-
-    # przykład: przejrzyj elementy <item> i wypisz atrybuty/tekst
-    def xml_parsing():
-        tree = ET.parse("data.xml")
+    def xml_parsing(self, file_name):
+        import xml.etree.ElementTree as ET
+        xml_file_path = f"{self.static_folder}/{file_name}"
+        tree = ET.parse(xml_file_path)
         root = tree.getroot()
-        for item in root.findall(".//item"):
-            print("attr id:", item.get("id"))
-            print("text:", (item.text or "").strip())
+        for item in root.findall(".//book"):
+            logger.info(f"author: {item.find("author").text}")
+            logger.info(f"title: {item.find("title").text}")
 
         from urllib.request import urlopen
         # Pobieranie z URL (standardowe)
-        with urlopen("https://example.com/data.xml") as r:
-            xml_bytes = r.read()
-        root = ET.fromstring(xml_bytes)
+        # with urlopen("https://example.com/data.xml") as r:
+        #     xml_bytes = r.read()
+        # root = ET.fromstring(xml_bytes)
 
         # streaming, przy dużych plikach
-        for event, elem in ET.iterparse("big.xml", events=("end",)):
-            if elem.tag == "record":
-                # przetwórz record
-                print(elem.findtext("title"))
-                # usuń, żeby zwolnić pamięć
-                elem.clear()
-
-        # jak masz już tekst to po prostu ładujesz
-        xml_data = """<?xml version="1.0" encoding="UTF-8"?>
-    <config>
-        <server>
-            <host>localhost</host>
-            <port>8080</port>
-        </server>
-        <users>
-            <user name="admin">active</user>
-            <user name="guest">inactive</user>
-        </users>
-    </config>
-    """
+        # for event, elem in ET.iterparse("big.xml", events=("end",)):
+        #     if elem.tag == "record":
+        #         # przetwórz record
+        #         print(elem.findtext("title"))
+        #         # usuń, żeby zwolnić pamięć
+        #         elem.clear()
 
         """
             Mapuje sie na cos takiego
@@ -166,14 +138,14 @@ if __name__ == '__main__':
          └── users
               ├── user (name="admin") → "active"
               └── user (name="guest") → "inactive"
-        
+
         Po sparsowaniu dostaje roota - czyli obiekt klasy Element
             Kążdy element ma
             .tag - nazwa elementu
             .text - tekst miedzy znacznikami
             .attrib - słownik atrybutów
             .find / .findall () - wyszukiwanie pojedyncze, albo wszystkcih dzieci
-            
+
         Wyszukiwanie elementów  - ściężki XPath
             "server" 
                 - dziecko o nazwie server 
@@ -183,15 +155,44 @@ if __name__ == '__main__':
                 <server><port>...</por></server>
             ".//user"
                 -dowolny user w całym drzewie - wszystkie <user>
-            
+
             ".//user[@name='admin']"
                 -tylko user który ma dany atrybut name 
-                
+
         Dodawanie / modyfikacja
         """
+        xml_data = """<?xml version="1.0" encoding="UTF-8"?>
+            <config>
+                <server>
+                    <host>localhost</host>
+                    <port>8080</port>
+                </server>
+                <users>
+                    <user name="admin">active</user>
+                    <user name="guest">inactive</user>
+                </users>
+            </config>
+        """
         root = ET.fromstring(xml_data)
-        print(root.find(".//Interval").text)
+        logger.info(root.find(".//host").text)
 
         new_user = ET.Element("user", name="new")
         new_user.text = "pending"
         root.find("users").append(new_user)
+
+
+if __name__ == '__main__':
+    parsing = Parsing()
+    parsing.json_parsing("simple.json")
+    print("*" * 60)
+    parsing.yaml_parsing("simple.yaml")
+    print("*" * 60)
+    parsing.ini_parsing("simple.ini")
+    print("*" * 60)
+    parsing.xml_parsing("simple.xml")
+
+
+    # parse parsuje po nazwie pliku
+
+    # przykład: przejrzyj elementy <item> i wypisz atrybuty/tekst
+
