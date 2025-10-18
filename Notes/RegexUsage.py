@@ -120,6 +120,135 @@ class RegexPlayground(object):
             f"What?: {labeled.group("what")}"
         )
 
+    """
+        Meta znaki mają specjalne zastosowanie i steruja działaniem wzorca
+            jeśli literalnie go chcemy zinterpretować to robimy \
+            np \.
+        1. kotwice - start i koniec regexa
+            ^ - poczatek lini
+            $ - koniec lini 
+        2. Ilość 
+            * - 0 lub wiecej            a*       '' a aaaa
+            + - 1 lub wiecej            a+        a aaaa
+            ? - 0 lub 1                 a?        '' a 
+            {x}  - dokladnie x razy      a{3}       aaa 
+            {x,} -  co najmniej x razy   a{3,}      aa aaa aaaaaaa
+            {n,m} - od n do m razy      a{1,3}      a aa aaa
+        3. Zbiory znaków
+            [] - podaje sie jakie znaki są dozwolone
+            [abc]      albo a,b, albo c         a b c 
+            [a-z]      tylko małe litery       a b g l
+            [A-Z]      tylko duze litery       A B C Z
+            [0-9]       cyfra                   0..9
+            [^0-9]      wszystko opróćz cyfry       a # Z
+            ^ - jest zaprzeczeniem w tym przypadku
+        4. kropka
+            . - dopasowuje dowolny znako oprócz nowej lini
+        5. | - alternatywa
+            albo ten pattern albo inny
+            
+        6. () - grupowanie
+            nawiasy logiczne wewnątrz regexa
+            grupuje elementy, żeby mógłzastosować kwantyfikator * + {}
+            doo całej sekwencji
+        
+        7. \ - ucieczka
+            raktowanie znaku dosłownie
+            \. - dopasuj dosłownie kropke w regexie
+            \\d - dosłownie słowo z \domek
+            
+             
+    """
+    def meta_signs_remainder(self):
+        def start_meta_example():
+            print("start meta example")
+            print(re.findall(f"^Uszanowanie", "Uszanowanie co tam"))
+            print(re.findall(f"^Uszanowanie", "Witam, Uszanowanie co tam"))
+
+        def end_meta_example():
+            print("end meta example")
+            print(re.findall(f"co tam$", "Uszanowanie co tam"))
+            print(re.findall(f"co tam$", "Uszanowanie co tam u ciebie"))
+
+        def amount_example():
+            print("amount example")
+            text = "UszaNOWANIE, czy masz #13 pln ?"
+            print(
+                re.findall(r"[a-z]", text), "\n",
+                re.findall(r"[A-Z]", text), "\n",
+                re.findall(r"[0-9]", text), "\n",
+                re.findall(r"[^0-9]", text), "\n",
+                re.findall(r"[alock]", text), "\n",
+            )
+
+        """
+            4. kropka
+            . - dopasowuje dowolny znako oprócz nowej lini
+        """
+        def dot_example():
+            print("dot example")
+            print(re.findall(
+           r"h.{2}t", "hot, hat, halt, shot, host"
+            ))
+
+        """
+          5. | - alternatywa
+            albo ten pattern albo inny
+        """
+        def alternative_example():
+            print("dot example")
+            print(re.findall(
+                r"szach|mat", "koń, królowa, szach, król, goniec, mat"
+            ))
+
+        """
+           6. () - grupowanie
+            nawiasy logiczne wewnątrz regexa
+            grupuje elementy, żeby móc zastosować ilościowe * + {}
+            do danej sekwencji
+        """
+        def grouping_example():
+            print("grouping example")
+            #  dopasowuje dana grupe 1 albo wiecej razy
+            print(
+                re.findall(r"(ab)+", "ababbacaba"),
+                re.findall(r"(ab|ca)+", "ababbacaba")
+            )
+
+        def escape_example():
+            print("escape example")
+            print(
+                re.findall(r"\d+", "123"),
+                re.findall(r"\\d", "d\dd")
+            )
+
+        start_meta_example()
+        end_meta_example()
+        amount_example()
+        dot_example()
+        alternative_example()
+        grouping_example()
+        escape_example()
+    """
+        Klasy znaków:
+            Wzór         Znaczenie                    Przykład
+            \d         cyfra [0-9]                 5,7,3 
+            \D          nie cyfra                 a # x
+            \w      znak słowa [azAZ0-9_]           a Z 6 _ - praktycznie wszystko
+            \W       nie znak słowa         wszystko co nie nalezy do \w
+            \s        biały znak (spacja,tab..)        \n \t ""
+            \S         nie biały znak           wszystko oprócz \s
+    """
+    def special_signs_remainder(self):
+        def w_class_example():
+            text = "ID123 abc 99 END"
+            print(re.findall(r"\w+", text))
+
+
+
+        w_class_example()
+
+
 if __name__ == "__main__":
     example_text = "Ola has a cat, but Ola doesnt have guitar 12"
     numeric_example = "id:161276, test: 45125"
@@ -129,5 +258,11 @@ if __name__ == "__main__":
     numeric_playground = RegexPlayground(numeric_example)
     numeric_playground.findall_example()
     numeric_playground.find_iter_example()
+    print("*" * 100)
     playground.flags_example()
+    print("*" * 100)
     playground.capturing_groups()
+    print("*" * 100)
+    playground.meta_signs_remainder()
+    print("*" * 100)
+    playground.special_signs_remainder()
