@@ -115,20 +115,6 @@ class Parsing:
             logger.info(f"author: {item.find("author").text}")
             logger.info(f"title: {item.find("title").text}")
 
-        from urllib.request import urlopen
-        # Pobieranie z URL (standardowe)
-        # with urlopen("https://example.com/data.xml") as r:
-        #     xml_bytes = r.read()
-        # root = ET.fromstring(xml_bytes)
-
-        # streaming, przy dużych plikach
-        # for event, elem in ET.iterparse("big.xml", events=("end",)):
-        #     if elem.tag == "record":
-        #         # przetwórz record
-        #         print(elem.findtext("title"))
-        #         # usuń, żeby zwolnić pamięć
-        #         elem.clear()
-
         """
             Mapuje sie na cos takiego
         config
@@ -180,6 +166,27 @@ class Parsing:
         new_user.text = "pending"
         root.find("users").append(new_user)
 
+        # saving change or new
+        new_root = ET.Element("root")
+        ET.SubElement(new_root, "item", attrib={"id": "1"}).text = "Hello"
+        tree = ET.ElementTree(new_root)
+        tree.write(f"{self.static_folder}/out.xml", encoding="utf-8", xml_declaration=True)
+
+    def csv_parsing(self):
+        import csv
+
+        # Wczytanie
+        with open(f"{self.static_folder}/simple.csv", newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                for key in row.keys():
+                    print(row[key])
+
+        # Zapis
+        with open(f"{self.static_folder}/out.csv", "w", newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["col1", "col2"])
+            writer.writeheader()
+            writer.writerow({"col1": 1, "col2": 2})
 
 if __name__ == '__main__':
     parsing = Parsing()
@@ -190,6 +197,8 @@ if __name__ == '__main__':
     parsing.ini_parsing("simple.ini")
     print("*" * 60)
     parsing.xml_parsing("simple.xml")
+    print("*" * 60)
+    parsing.csv_parsing()
 
 
     # parse parsuje po nazwie pliku
