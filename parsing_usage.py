@@ -3,7 +3,7 @@ import json
 import yaml  # pyyaml
 
 from copy import deepcopy
-from Logger import logger
+from sub_python_notes.logger import logger
 
 
 class Parsing:
