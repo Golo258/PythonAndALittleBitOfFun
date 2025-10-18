@@ -1,6 +1,7 @@
 
 import os
 import json
+import yaml # pyyaml
 import xml.etree.ElementTree as ET
 
 from copy import deepcopy
@@ -30,35 +31,72 @@ class Parsing:
             )
 
     def json_parsing(self, file_name):
-        self.file_path = f"{self.static_folder}/{file_name}"
+        json_file_path = f"{self.static_folder}/{file_name}"
 
         def load_and_print_json_file_content(
             file_path: str = None
         ):
-            with open(file_path or self.file_path, "r") as json_file_r:
+            with open(file_path or json_file_path, "r") as json_file_r:
                 self.loaded = json.load(json_file_r) # dict/list
                 logger.debug(self.loaded)
+
+        def load_from_string():
+            string_var = '{"a": 1, "b":3}'
+            json_data = json.loads(string_var)
+            logger.debug(json_data)
+
+        def from_dict_to_string(cls):
+            text = json.dumps(cls.loaded, indent=2)
+            assert isinstance(text, str)
+            logger.debug(text)
+
 
         def save_json_data():
             changed_data = deepcopy(self.loaded)
             changed_data["properties"].append(
                 {"name": "sadness", "level": 15}
             )
-            replaced_path = self.file_path.replace(".json", "changed.json")
+            replaced_path = json_file_path.replace(".json", "changed.json")
             with open(replaced_path, "w") as json_file_w:
                 json.dump(changed_data, json_file_w, indent=4)
             load_and_print_json_file_content(replaced_path)
             os.remove(replaced_path)
 
-        if self.file_exists(self.file_path):
+        if self.file_exists(json_file_path):
             load_and_print_json_file_content()
             save_json_data()
+            load_from_string()
+            from_dict_to_string(self)
 
+    def yaml_parsing(self, file_name):
+        yaml_file_path = f"{self.static_folder}/{file_name}"
+        if self.file_exists(yaml_file_path):
+
+            def load_yaml_and_show_content(file_path:str = None):
+                chosen_path = file_path or yaml_file_path
+                with open(chosen_path, "r") as yaml_file_r:
+                    yaml_data = yaml.safe_load(yaml_file_r) #->dict/ list
+                logger.debug(f"\n-- File {chosen_path}\n-- Data: {yaml_data}")
+                return yaml_data
+
+            def save_changed_data(data):
+                data["pokemon"]["personality"] = "friendly"
+                changed = yaml_file_path.replace(".yaml", "_changed.yaml")
+                with open(changed, "w") as yaml_file_w:
+                    yaml.safe_dump(yaml_data, yaml_file_w, sort_keys=False)
+
+                load_yaml_and_show_content(changed)
+                os.remove(changed)
+            yaml_data = load_yaml_and_show_content()
+            save_changed_data(yaml_data)
+
+            logger.debug(yaml_data)
 
 if __name__ == '__main__':
     parsing = Parsing()
     parsing.json_parsing("simple.json")
     print("*" * 60)
+    parsing.yaml_parsing("simple.yaml")
 
 # parse parsuje po nazwie pliku
 
