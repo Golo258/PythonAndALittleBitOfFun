@@ -1,0 +1,10 @@
+pokemon:
+  name: Pikachu
+  level: 12
+  properties:
+    speed: fast
+    born: "who knows"
+  attributes:
+    - electric
+    - awesome
+    - cute

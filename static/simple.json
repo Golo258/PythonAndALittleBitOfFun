@@ -1,0 +1,14 @@
+{
+  "name" : "John",
+  "age" : 21,
+  "properties" : [
+    {
+      "name" : "humor",
+      "level" : 52
+    },
+    {
+      "name" : "personality",
+      "level": 52
+    }
+  ]
+}
