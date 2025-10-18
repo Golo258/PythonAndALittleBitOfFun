@@ -1,6 +1,7 @@
+import itertools
 import time
-
-from jedi.inference.gradual.annotation import find_unknown_type_vars
+from itertools import zip_longest
+from os import times
 
 from Logger import  logger
 
@@ -216,6 +217,184 @@ class FuncToolsExample(object):
             words
         )
         print(f"Words dir: {words_dir}")
+#-----------------------------------
+"""
+   ITERATOR -
+       obiekt którego elementy można pobierać po kolei
+       musi miec dwie metody:
+           __iter__ - zwraca samego siebie (jest iterowalny)
+           --next__ - zwraca kolejny element, rzuca StopIteration
+"""
+def iterator_example():
+    numbers = iter([10, 20, 30])
+    logger.debug(next(numbers))
+    logger.debug(next(numbers))
+    logger.debug(next(numbers))
+    try:
+        logger.debug(next(numbers))
+    except StopIteration as si:
+        logger.error(si)
 
+
+"""
+    GENERATOR - to iterator, któy pisze sie za pomocą yield w funckji
+        to rodzaj iterator, prostrszy to stworzenia
+        nie trzeba implementować funkcji iter i next
+    Każdy generator jest iteratorem
+"""
+def generator_example():
+
+    def simple_gen():
+        yield 1
+        yield "abc"
+        yield True
+
+    gen = simple_gen()
+    logger.info(next(gen))
+    logger.info(next(gen))
+    logger.info(next(gen))
+    # logger.info(next(gen)) Stop Iteration
+
+"""
+    ITERABLE - to obiekt po którym można iterować
+        taki który potrafi utworzydc iteratora
+            żeby coś było iterable musi mieć metode __iter__
+        nie posiada __next - jest źródłem danych 
+    Na przykłąd listy stringi słowniki tuple itp
+"""
+def iterable_example():
+    listy= [1, 2, 3]
+    stringi= "hello"
+    tuple= (1, 2)
+    dict= {"a": 1, "b": 2}
+    sety= {1, 2, 3}
+
+import itertools
+class IterToolsLibExplanation(object):
+    """
+        Praca z listami, generatorami,iterowalnymi rzeczami
+        itertools działa leniwie - generuje dane na bieżaco
+            3 grupy funkcji:
+            - nieskończone iteratory, lecą aż je zatrezymasz
+            - skonczone iteratory - biorą coś i robią z tym dane rzecz
+            - kombinatoryka - tworzyą permutacje, kombinacje itp
+
+    """
+
+
+    def infinity_iterator(self):
+        # count
+        for index in itertools.count(10, 2):
+            logger.info(index)
+            if index > 20:
+                break
+
+        # cicle - zapelta sekwencje
+        for color in itertools.cycle(["red", "green", "blue"]):
+            logger.debug(color)
+            if color == "blue":
+                break
+
+        # repeat - potwarza wiele razy daną sekwencje
+        # jesli nie podamy times to bedzie potwarzał w nieskonczoność
+        for sequence in itertools.repeat("---", times=5):
+            logger.debug(sequence)
+
+    def finite_iterator(self):
+        """
+            chain(*iterables) - łączy kilka kolekcji
+                -iterowalnych obiektów
+            działa też na generatorach
+        """
+        for iter_obj in itertools.chain(
+            [1, 2], ['a', 'b'], [True]
+        ):
+            logger.info(f"{iter_obj},Type: {type(iter_obj)}")
+
+        """
+            islice (iterable, start, stop, step)
+                - lazy slice
+            wycinanie jak w list[start:stop:step] 
+                tylko że działa na dowolnym iteratorze
+        """
+        for obj in itertools.islice(itertools.count(), 5, 10):
+            logger.debug(obj)
+
+        """
+            startmap(func, iterable_of_tuples)
+                mapowanie argumentów wzgledem funkcji:
+                map(), rozpakowuje krotki argumentów jako argumenty funkcji
+                
+                każdy argument musi byc krotką /listą
+        """
+        def multiply(a, b, c=None):
+            if c:
+                return a * b * c
+            else:
+                return a * b
+        data = [(2, 3), (4, 5, 12), (6, 7)]
+        logger.info(
+            list(
+                itertools.starmap(multiply, data)
+            )
+        )
+        # lepszy przykład
+        def format_price(name, price):
+            return f"{name}: {price:.2f} zł"
+
+        products = [("Jabłko", 1.99), ("Banan", 3.49), ("Kiwi", 4.25)]
+        for line in itertools.starmap(format_price, products):
+            logger.debug(line)
+
+        """
+            tee(itearble, n=2)
+                tworzy n niezależnych iteratorów
+                które czytają te same dane z jednego źródła (iterable)
+                                
+        """
+
+        data = [1, 2, 3]
+        a, b = itertools.tee(data)
+        logger.info(list(a))
+        logger.info(list(b))
+
+
+        """
+            zip_longest - jak zipowanie danych
+                tylko nie konczy sie po krótszej liście
+        """
+        longest = [1, 2 ,3]
+        shortest = ["a", "b"]
+        logger.debug(
+            list(itertools.zip_longest(
+                longest, shortest, fillvalue='?#')
+            )
+        )
+
+    def combinatorics_example(self):
+        """
+            produkt - wszystkie możliwe kobinacje elementów
+            iloczyn kartezjański
+        """
+        logger.info(
+            list(itertools.product([1, 2], ['a', 'b']))
+        )
+        """
+            permutations(iterable, r=None)
+            permutacje - wszystkie możliwe ułożenia elemnentów
+        """
+        logger.info(
+            list(itertools.permutations("abc", 2))
+        )
+#--------------
 fun = FuncToolsExample()
 fun.runner()
+#--------------
+iterator_example()
+generator_example()
+#--------------
+iter_tool_Lib = IterToolsLibExplanation()
+iter_tool_Lib.infinity_iterator()
+iter_tool_Lib.finite_iterator()
+iter_tool_Lib.combinatorics_example()
+#--------------
