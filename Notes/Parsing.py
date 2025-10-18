@@ -201,7 +201,5 @@ if __name__ == '__main__':
     parsing.csv_parsing()
 
 
-    # parse parsuje po nazwie pliku
-
     # przykład: przejrzyj elementy <item> i wypisz atrybuty/tekst
 
